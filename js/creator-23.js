@@ -868,6 +868,9 @@ function autoFrame() {
 	} else if (frame == 'Borderless') {
 		group = 'Showcase-5';
 		autoBorderlessFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
+	} else if (frame == 'M15Nickname') {
+		group = 'Showcase-5';
+		autoGodzillaFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
 	}
 
 	if (autoFramePack != frame) {
@@ -1274,6 +1277,59 @@ async function autoBorderlessFrame(colors, mana_cost, type_line, power) {
 	await card.frames.forEach(item => addFrame([], item));
 	card.frames.reverse();
 }
+
+async function autoGodzillaFrame(colors, mana_cost, type_line, power) {
+	var frames = card.frames.filter(frame => frame.name.includes('Extension'));
+
+	//clear the draggable frames
+	card.frames = [];
+	document.querySelector('#frame-list').innerHTML = null;
+
+	var properties = cardFrameProperties(colors, mana_cost, type_line, power, 'Borderless');
+	var style = 'regular';
+	if (type_line.toLowerCase().includes('enchantment creature') || type_line.toLowerCase().includes('enchantment artifact')) {
+		style = 'Nyx';
+	}
+
+	// Set frames
+	if (type_line.includes('Legendary')) {
+		if (style == 'Nyx') {
+			if (properties.pinlineRight) {
+				frames.push(makeGodzillaFrameByLetter(properties.pinlineRight, 'Inner Crown', true));
+			}
+			frames.push(makeM15FrameByLetter(properties.pinline, 'Inner Crown', false, style));
+		}
+
+		if (properties.pinlineRight) {
+			frames.push(makeGodzillaFrameByLetter(properties.pinlineRight, 'Crown', true));
+		}
+		frames.push(makeGodzillaFrameByLetter(properties.pinline, "Crown", false, style));
+	} else {
+		if (properties.pinlineRight) {
+			frames.push(makeGodzillaFrameByLetter(properties.pinlineRight, 'Title', true));
+		}
+		frames.push(makeGodzillaFrameByLetter(properties.pinline, "Title", false));
+	}
+	
+	if (properties.pt) {
+		frames.push(makeGodzillaFrameByLetter(properties.pt, 'PT', false));
+	}
+
+	if (properties.pinlineRight) {
+		frames.push(makeGodzillaFrameByLetter(properties.pinlineRight, 'Pinline', true));
+	}
+	frames.push(makeGodzillaFrameByLetter(properties.pinline, 'Pinline', false));
+
+	frames.push(makeGodzillaFrameByLetter(properties.typeTitle, 'Type', false));
+	frames.push(makeGodzillaFrameByLetter(properties.rules, 'Rules', false));
+	frames.push(makeGodzillaFrameByLetter(properties.frame, 'Border', false));
+
+	card.frames = frames;
+	card.frames.reverse();
+	await card.frames.forEach(item => addFrame([], item));
+	card.frames.reverse();
+}
+
 async function auto8thEditionFrame(colors, mana_cost, type_line, power, colorshifted = false) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension'));
 
@@ -2150,6 +2206,163 @@ function makeBorderlessFrameByLetter(letter, mask = false, maskToRightHalf = fal
 	var frame = {
 		'name': frameName + ' Frame',
 		'src': '/img/frames/m15/borderless/m15GenericShowcaseFrame' + letter + '.png',
+	}
+
+	if (letter.includes('L') && letter.length > 1) {
+		frame.src = frame.src.replace(('m15GenericShowcaseFrame' + letter), 'l' + letter[0].toLowerCase())
+	}
+
+	if (mask) {
+		if (mask == 'Pinline') {
+			frame.masks = [
+				{
+					'src': '/img/frames/m15/genericShowcase/m15GenericShowcaseMask' + mask + '.png',
+					'name': mask
+				}
+			];
+		} else {
+			frame.masks = [
+				{
+					'src': '/img/frames/m15/regular/m15Mask' + mask + '.png',
+					'name': mask
+				}
+			];
+		}
+
+		if (maskToRightHalf) {
+			frame.masks.push({
+				'src': '/img/frames/maskRightHalf.png',
+				'name': 'Right Half'
+			});
+		}
+	} else {
+		frame.masks = [];
+	}
+
+	return frame;
+}
+function makeGodzillaFrameByLetter(letter, mask = false, maskToRightHalf = false, style) {
+	letter = letter.toUpperCase();
+
+	if (letter == 'V') {
+		letter = 'A';
+	}
+
+	if (letter == 'ML') {
+		letter = 'M';
+	} else if (letter.includes('L') && letter.length > 1) {
+		letter = letter[0];
+	}
+
+	var frameNames = {
+		'W': 'White',
+		'U': 'Blue',
+		'B': 'Black',
+		'R': 'Red',
+		'G': 'Green',
+		'M': 'Multicolored',
+		'A': 'Artifact',
+		'L': 'Land',
+		'C': 'Colorless'
+	}
+
+	if ((mask.includes('Crown') || mask == 'PT' || mask.includes('Stamp')) && letter.includes('L') && letter.length > 1) {
+		letter = letter[0];
+	}
+
+	var frameName = frameNames[letter];
+
+	if (mask == "Crown Border Cover") {
+		return {
+			'name': 'Legend Crown Border Cover',
+			'erase': true,
+			'src': '/img/black.png',
+			'masks': [],
+			'bounds': {
+				'height': 0.0177, // 50
+				'width': 0.9214,
+				'x': 0.0394,
+				'y': 0.0277
+			}
+		}
+	}
+
+	if (mask == "Crown") {
+		var frame = {
+			'name': frameName + ' Legend Crown',
+			'src': '/img/frames/m15/nickname/m15NicknameCrown' + letter + '.png',
+			'masks': [],
+			'preserveAlpha': maskToRightHalf,
+			'bounds': {
+				'height': 0.1286,
+				'width': 0.952,
+				'x': 0.024,
+				'y': 0.0172
+			}
+		}
+		if (maskToRightHalf) {
+			frame.masks.push({
+				'src': '/img/frames/maskRightHalf.png',
+				'name': 'Right Half'
+			});
+		}
+		return frame;
+	}
+
+	if (mask == "Inner Crown") {
+		var frame = {
+			'name': frameName + ' ' + mask + ' (' + style + ')',
+			'src': '/img/frames/m15/innerCrowns/m15InnerCrown' + letter + style + '.png',
+			'masks': [],
+			'preserveAlpha': maskToRightHalf,
+			'bounds': {
+				'height': 0.0239,
+				'width': 0.672,
+				'x': 0.164,
+				'y': 0.0239
+			}
+		}
+		if (maskToRightHalf) {
+			frame.masks.push({
+				'src': '/img/frames/maskRightHalf.png',
+				'name': 'Right Half'
+			});
+		}
+		return frame;
+	}
+
+	if (mask == 'PT') {
+		return {
+			'name': frameName + ' Power/Toughness',
+			'src': '/img/frames/m15/nickname/m15NicknamePT' + letter.toUpperCase() + '.png',
+			'masks': [],
+			'bounds': {
+				'height': 0.073050,
+				'width': 0.188141,
+				'x': 0.75704,
+				'y': 0.88477
+			}
+		}
+	}
+
+	if (mask == 'Title') {
+		return {
+			'name': frameName + ' Title',
+			'src': '/img/frames/m15/nickname/m15NicknameTitle' + letter + '.png',
+			'masks': [],
+			'bounds': {
+				'height': 0.1052,
+				'width': 0.9014,
+				'x': 0.0491,
+				'y': 0.0403
+			}
+		}
+	}
+
+	var frame = {
+		'name': frameName + ' Frame',
+		'src': '/img/frames/m15/nickname/m15NicknameFrame' + letter + '.png',
+		'preserveAlpha': maskToRightHalf
 	}
 
 	if (letter.includes('L') && letter.length > 1) {
