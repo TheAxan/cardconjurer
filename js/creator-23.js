@@ -141,6 +141,7 @@ async function resetCardIrregularities({canvas = [getStandardWidth(), getStandar
 		card.showsFlavorBar = true;
 	}
 }
+
 async function setBottomInfoStyle() {
 	if (document.querySelector('#enableNewCollectorStyle').checked) {
 			await loadBottomInfo({
@@ -823,67 +824,85 @@ function autoFrame() {
 	}
 
 	var group;
-	if (frame == 'M15Regular-1') {
-		autoM15Frame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-		group = 'Standard-3';
-	} else if (frame == 'M15RegularNew') {
-		autoM15NewFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-		group = 'Accurate';
-	} else if (frame == 'M15Eighth') {
-		autoM15EighthFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-		group = 'Custom';
-	} else if (frame == 'M15EighthUB') {
-		autoM15EighthUBFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-		group = 'Custom';
-	} else if (frame == 'UB') {
-		autoUBFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-		group = 'Showcase-5';
-	} else if (frame == 'UBNew') {
-		autoUBNewFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-		group = 'Accurate';
-	} else if (frame == 'FullArtNew') {
-		autoFullArtNewFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-		group = 'Accurate';
-	} else if (frame == 'Circuit') {
-		autoCircuitFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-		group = 'Custom';
-	} else if (frame == 'Etched') {
-		group = 'Showcase-5';
-		autoEtchedFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-	} else if (frame == 'Praetors') {
-		group = 'Showcase-5';
-		autoPhyrexianFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-	} else if (frame == 'Seventh') {
-		group = 'Misc-2';
-		autoSeventhEditionFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-	} else if (frame == 'M15BoxTopper') {
-		group = 'Showcase-5';
-		autoExtendedArtFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text, false);
-	} else if (frame == 'M15ExtendedArtShort') {
-		group = 'Showcase-5';
-		autoExtendedArtFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text, true);
-	} else if (frame == '8th') {
-		group = 'Misc-2';
-		auto8thEditionFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text, false);
-	} else if (frame == 'Borderless') {
-		group = 'Showcase-5';
-		autoBorderlessFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-	} else if (frame == 'M15Nickname') {
-		group = 'Showcase-5';
-		autoGodzillaFrame(colors, card.text.mana.text, card.text.type.text, card.text.pt.text);
-	}
+	var variables = [colors, card.text.mana.text, card.text.type.text, card.text.pt.text];
+	switch (frame) {
+		case 'M15Regular-1':
+			autoM15Frame(...variables);
+			group = 'Standard-3';
+			break;
+		case 'M15RegularNew':
+			autoM15NewFrame(...variables);
+			group = 'Accurate';
+			break;
+		case 'M15Eighth':
+			autoM15EighthFrame(...variables);
+			group = 'Custom';
+			break;
+		case 'M15EighthUB':
+			autoM15EighthUBFrame(...variables);
+			group = 'Custom';
+			break;
+		case 'UB':
+			autoUBFrame(...variables);
+			group = 'Showcase-5';
+			break;
+		case 'UBNew':
+			autoUBNewFrame(...variables);
+			group = 'Accurate';
+			break;
+		case 'FullArtNew':
+			autoFullArtNewFrame(...variables);
+			group = 'Accurate';
+			break;
+		case 'Circuit':
+			autoCircuitFrame(...variables);
+			group = 'Custom';
+			break;
+		case 'Etched':
+			group = 'Showcase-5';
+			autoEtchedFrame(...variables);
+			break;
+		case 'Praetors':
+			group = 'Showcase-5';
+			autoPhyrexianFrame(...variables);
+			break;
+		case 'Seventh':
+			group = 'Misc-2';
+			autoSeventhEditionFrame(...variables);
+			break;
+		case 'M15BoxTopper':
+			group = 'Showcase-5';
+			autoExtendedArtFrame(...variables, false);
+			break;
+		case 'M15ExtendedArtShort':
+			group = 'Showcase-5';
+			autoExtendedArtFrame(...variables, true);
+			break;
+		case '8th':
+			group = 'Misc-2';
+			auto8thEditionFrame(...variables, false);
+			break;
+		case 'Borderless':
+			group = 'Showcase-5';
+			autoBorderlessFrame(...variables);
+			break;
+		case 'M15Nickname':
+			group = 'Showcase-5';
+			autoGodzillaFrame(...variables);
+			break;
+		}
+	renderPreview();
 
 	if (autoFramePack != frame) {
 		loadScript('/js/frames/pack' + frame + '.js');
 		autoFramePack = frame;
 	}
 }
+
 async function autoUBFrame(colors, mana_cost, type_line, power) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension') || frame.name.includes('Gray Holo Stamp') || frame.name.includes('Gold Holo Stamp'));
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power);
 
@@ -924,22 +943,20 @@ async function autoUBFrame(colors, mana_cost, type_line, power) {
 	}
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
 }
+
 async function autoUBNewFrame(colors, mana_cost, type_line, power) {
 	autoM15NewFrame(colors, mana_cost, type_line, power, 'ub');
 }
+
 async function autoFullArtNewFrame(colors, mana_cost, type_line, power) {
 	autoM15NewFrame(colors, mana_cost, type_line, power, 'fullart');
 }
+
 async function autoCircuitFrame(colors, mana_cost, type_line, power) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension') || frame.name.includes('Gray Holo Stamp') || frame.name.includes('Gold Holo Stamp'));
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power);
 
@@ -976,16 +993,12 @@ async function autoCircuitFrame(colors, mana_cost, type_line, power) {
 	}
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
 }
+
 async function autoM15Frame(colors, mana_cost, type_line, power) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension'));
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power);
 	var style = 'regular';
@@ -1034,10 +1047,8 @@ async function autoM15Frame(colors, mana_cost, type_line, power) {
 	}
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
 }
+
 async function autoM15NewFrame(colors, mana_cost, type_line, power, style = 'regular') {
 	var frames;
 	if (style == 'ub') {
@@ -1046,9 +1057,7 @@ async function autoM15NewFrame(colors, mana_cost, type_line, power, style = 'reg
 		frames = card.frames.filter(frame => frame.name.includes('Extension'));
 	}
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power);
 	if (style != 'ub' && style != 'fullart') {
@@ -1107,16 +1116,12 @@ async function autoM15NewFrame(colors, mana_cost, type_line, power, style = 'reg
 	}
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
 }
+
 async function autoM15EighthFrame(colors, mana_cost, type_line, power) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension'));
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power);
 	var style = 'regular';
@@ -1165,16 +1170,12 @@ async function autoM15EighthFrame(colors, mana_cost, type_line, power) {
 	}
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
 }
+
 async function autoM15EighthUBFrame(colors, mana_cost, type_line, power) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension'));
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power);
 	var style = 'regular';
@@ -1223,16 +1224,12 @@ async function autoM15EighthUBFrame(colors, mana_cost, type_line, power) {
 	}
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
 }
+
 async function autoBorderlessFrame(colors, mana_cost, type_line, power) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension'));
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power, 'Borderless');
 	var style = 'regular';
@@ -1273,17 +1270,12 @@ async function autoBorderlessFrame(colors, mana_cost, type_line, power) {
 	// }
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
 }
 
 async function autoGodzillaFrame(colors, mana_cost, type_line, power) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension'));
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power, 'Borderless');
 	var style = 'regular';
@@ -1325,17 +1317,12 @@ async function autoGodzillaFrame(colors, mana_cost, type_line, power) {
 	frames.push(makeGodzillaFrameByLetter(properties.frame, 'Border', false));
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
 }
 
 async function auto8thEditionFrame(colors, mana_cost, type_line, power, colorshifted = false) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension'));
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power);
 
@@ -1360,16 +1347,12 @@ async function auto8thEditionFrame(colors, mana_cost, type_line, power, colorshi
 	frames.push(make8thEditionFrameByLetter(properties.frame, 'Border', false, colorshifted));
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
 }
+
 async function autoExtendedArtFrame(colors, mana_cost, type_line, power, short) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension'));
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power);
 	var style = 'regular';
@@ -1422,16 +1405,12 @@ async function autoExtendedArtFrame(colors, mana_cost, type_line, power, short) 
 	}
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
 }
+
 async function autoEtchedFrame(colors, mana_cost, type_line, power) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension'));
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power, 'Etched');
 	var style = 'regular';
@@ -1473,16 +1452,12 @@ async function autoEtchedFrame(colors, mana_cost, type_line, power) {
 	frames.push(makeEtchedFrameByLetter(properties.frame, 'Border', false));
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
 }
+
 async function autoPhyrexianFrame(colors, mana_cost, type_line, power) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension'));
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power, 'Phyrexian');
 
@@ -1514,16 +1489,12 @@ async function autoPhyrexianFrame(colors, mana_cost, type_line, power) {
 	frames.push(makePhyrexianFrameByLetter(properties.frame, 'Border', false));
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
 }
+
 async function autoSeventhEditionFrame(colors, mana_cost, type_line, power) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension') || frame.name.includes('DCI Star'));
 
-	//clear the draggable frames
-	card.frames = [];
-	document.querySelector('#frame-list').innerHTML = null;
+	clearFrames();
 
 	var properties = cardFrameProperties(colors, mana_cost, type_line, power, 'Seventh');
 
@@ -1538,10 +1509,19 @@ async function autoSeventhEditionFrame(colors, mana_cost, type_line, power) {
 	frames.push(makeSeventhEditionFrameByLetter(properties.frame, 'Border', false));
 
 	card.frames = frames;
-	card.frames.reverse();
-	await card.frames.forEach(item => addFrame([], item));
-	card.frames.reverse();
+	}
+
+function renderPreview() {
+	card.frames.reverse()
+	card.frames.forEach(item => addFrame([], item))
+	card.frames.reverse()
 }
+
+function clearFrames() {
+	card.frames = [];
+	document.querySelector('#frame-list').innerHTML = null;
+}
+
 function makeM15FrameByLetter(letter, mask = false, maskToRightHalf = false, style = 'regular') {
 	letter = letter.toUpperCase();
 	var frameNames = {
@@ -3203,6 +3183,7 @@ function makeSeventhEditionFrameByLetter(letter, mask = false, maskToRightHalf =
 
 	return frame;
 }
+
 async function addFrame(additionalMasks = [], loadingFrame = false) {
 	var frameToAdd = JSON.parse(JSON.stringify(availableFrames[selectedFrameIndex]));
 	var maskThumbnail = true;
@@ -3560,6 +3541,7 @@ function autoFrameBuffer() {
 	clearTimeout(autoFrameTimer);
 	autoFrameTimer = setTimeout(autoFrame, 500);
 }
+
 async function drawText() {
 	textContext.clearRect(0, 0, textCanvas.width, textCanvas.height);
 	prePTContext.clearRect(0, 0, prePTCanvas.width, prePTCanvas.height);
@@ -4286,6 +4268,7 @@ function curlyQuotes(input) {
 function pinlineColors(color) {
 	return color.replace('white', '#fcfeff').replace('blue', '#0075be').replace('black', '#272624').replace('red', '#ef3827').replace('green', '#007b43')
 }
+
 async function addTextbox(textboxType) {
 	if (textboxType == 'Nickname' && !card.text.nickname && card.text.title) {
 		await loadTextOptions({nickname: {name:'Nickname', text:card.text.title.text, x:0.14, y:0.1129, width:0.72, height:0.0243, oneLine:true, font:'mplantini', size:0.0229, color:'white', shadowX:0.0014, shadowY:0.001, align:'center'}}, false);
@@ -4651,6 +4634,7 @@ async function loadBottomInfo(textObjects = []) {
 	await bottomInfoEdited();
 	bottomInfoEdited();
 }
+
 async function bottomInfoEdited() {
 	await bottomInfoContext.clearRect(0, 0, bottomInfoCanvas.width, bottomInfoCanvas.height);
 	card.infoNumber = document.querySelector('#info-number').value;
@@ -4675,6 +4659,7 @@ async function bottomInfoEdited() {
 
 	drawCard();
 }
+
 async function serialInfoEdited() {
 	card.serialNumber = document.querySelector('#serial-number').value;
 	card.serialTotal = document.querySelector('#serial-total').value;
@@ -5271,6 +5256,7 @@ function saveCard(saveFromFile) {
 		notify('You have exceeded your 5MB of local storage, and your card has failed to save. If you would like to continue saving cards, please download all saved cards, then delete all saved cards to free up space.<br><br>Local storage is most often exceeded by uploading large images directly from your computer. If possible/convenient, using a URL avoids the need to save these large images.<br><br>Apologies for the inconvenience.');
 	}
 }
+
 async function loadCard(selectedCardKey) {
 	//clear the draggable frames
 	document.querySelector('#frame-list').innerHTML = null;
@@ -5358,6 +5344,7 @@ function deleteSavedCards() {
 		loadAvailableCards([]);
 	}
 }
+
 async function downloadSavedCards() {
 	var cardKeys = JSON.parse(localStorage.getItem('cardKeys'));
 	if (cardKeys) {
@@ -5476,6 +5463,7 @@ function imageURL(url, destination, otherParams) {
 	}
 	destination(imageurl, otherParams);
 }
+
 async function imageLocal(event, destination, otherParams) {
 	var reader = new FileReader();
 	reader.onload = function () {
