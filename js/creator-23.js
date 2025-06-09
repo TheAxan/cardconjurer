@@ -899,6 +899,20 @@ function autoFrame() {
 	}
 }
 
+function autoStamp(frames, properties) {
+	var stamp = document.querySelector('#autoStamp').value;
+	if (stamp == 'false') { return; }
+
+	console.log(card.infoRarity);
+	console.log(card.bottomInfo);
+
+	switch (stamp) {
+		case 'UB':
+			autoUBStamp(frames, properties);
+			break;
+	}
+}
+
 async function autoUBFrame(colors, mana_cost, type_line, power) {
 	var frames = card.frames.filter(frame => frame.name.includes('Extension') || frame.name.includes('Gray Holo Stamp') || frame.name.includes('Gold Holo Stamp'));
 
@@ -1169,7 +1183,7 @@ async function autoBorderlessFrame(colors, mana_cost, type_line, power) {
 }
 
 async function autoGodzillaFrame(colors, mana_cost, type_line, power) {
-	var frames = card.frames.filter(frame => frame.name.includes('Extension'));
+	var frames = card.frames.filter(frame => frame.name.includes('Extension') || frame.name.includes('Gray Holo Stamp') || frame.name.includes('Gold Holo Stamp'));
 
 	clearFrames();
 
@@ -1180,6 +1194,8 @@ async function autoGodzillaFrame(colors, mana_cost, type_line, power) {
 	}
 
 	// Set frames
+	// autoStamp(frames, properties);
+
 	if (type_line.includes('Legendary')) {
 		if (style == 'Nyx') {
 			pushDualFrame(frames, properties.pinline, properties.pinlineRight, 'Inner Crown', makeM15FrameByLetter, style);
@@ -2999,6 +3015,53 @@ function makeSeventhEditionFrameByLetter(letter, mask = false, maskToRightHalf =
 	return frame;
 }
 
+function autoUBStamp(frames, properties) {
+	// var rarity = document.querySelector('#info-rarity').value
+	console.log(card);
+	if (card.infoRarity === 'M' || card.infoRarity === 'R' ) {
+		pushUBGoldStamp(frames);
+	} else {
+		pushUBGrayStamp(frames);
+	}
+	pushDualFrame(frames, properties.pinline, properties.pinlineRight, 'Stamp', makeUBFrameByLetter, false);
+}
+
+function pushUBGrayStamp(frames) {
+	var frame = {
+		'name': 'Gray Holo Stamp',
+		'src': '/img/frames/m15/new/ub/stamp/gray.png',
+		'masks': [],
+		'bounds': {x:855/2015, y:2534/2814, width:300/2015, height:137/2814}
+	}
+	frames.push(frame)
+}
+
+function pushUBGoldStamp(frames) {
+	var frame = {
+		'name': 'Gold Holo Stamp',
+		'src': '/img/frames/m15/new/ub/stamp/gold.png',
+		'masks': [],
+		'bounds': {x:855/2015, y:2534/2814, width:300/2015, height:137/2814}
+	}
+	frames.push(frame)
+}
+
+// function makeUBFrameStampByLetter(letter, mask = false, maskToRightHalf = false) {
+// 	var frame = {
+// 		'name': frameName + ' Holo Stamp',
+// 		'src': '/img/frames/m15/new/ub/stamp/' + letter.toLowerCase() + '.png',
+// 		'masks': [],
+// 		'bounds': {x:857/2015, y:2534/2814, width:299/2015, height:137/2814}
+// 	}
+// 	if (maskToRightHalf) {
+// 		frame.masks.push({
+// 			'src': '/img/frames/maskRightHalf.png',
+// 			'name': 'Right Half'
+// 		});
+// 	}
+// 	return frame;
+// }
+
 async function addFrame(additionalMasks = [], loadingFrame = false) {
 	var frameToAdd = JSON.parse(JSON.stringify(availableFrames[selectedFrameIndex]));
 	var maskThumbnail = true;
@@ -4539,6 +4602,9 @@ function setAutoFrame() {
 }
 function setAutofit() {
 	localStorage.setItem('autoFit', document.querySelector('#art-update-autofit').checked);
+}
+function setAutoStamp() {
+	localStorage.setItem('autoStamp', document.querySelector('#autoStamp').value);
 }
 function removeDefaultCollector() {
 	defaultCollector = {}; //{number: year, rarity:'P', setCode:'MTG', lang:'EN', starDot:false};
